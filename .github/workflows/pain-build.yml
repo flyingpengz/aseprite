@@ -1,0 +1,51 @@
+name: Build Aseprite with Skia
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake ninja-build ccache \
+          libx11-dev libxcursor-dev libxrandr-dev \
+          libxinerama-dev libxi-dev libgl1-mesa-dev \
+          libfontconfig1-dev libfreetype6-dev \
+          libwebp-dev libjpeg-dev libpng-dev \
+          libtinyxml-dev libpixman-1-dev \
+          libglu1-mesa-dev \
+          python3 python3-pip \
+          git curl wget
+    
+    - name: Make build script executable
+      run: chmod +x ./build.sh
+    
+    - name: Run build script
+      run: ./build.sh --skia --release
+    
+    - name: Check build output
+      run: |
+        echo "=== Checking build output ==="
+        find build -name "aseprite" -type f
+        ls -la build/bin/ || echo "No build/bin directory"
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: aseprite-linux
+        path: |
+          build/bin/aseprite
+          build/bin/data/
+        if-no-files-found: warn
