@@ -32,8 +32,10 @@ jobs:
     - name: Make build script executable
       run: chmod +x ./build.sh
     
-    - name: Run build script
-      run: ./build.sh --skia --release
+    - name: Run build script with --auto flag
+      run: |
+        # Use the --auto flag to skip interactive prompts
+        ./build.sh --auto
     
     - name: Check build output
       run: |
